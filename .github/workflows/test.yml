@@ -1,0 +1,8 @@
+name: Test All
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-get-hz-versions:
+    uses: ./.github/workflows/test-get-hz-versions.yml

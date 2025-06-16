@@ -1,0 +1,4 @@
+FROM redhat/ubi9-minimal:9.6
+
+ARG HZ_VERSION=1.2.3
+ARG JDK_VERSION="21"

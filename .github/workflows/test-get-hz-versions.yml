@@ -1,0 +1,41 @@
+name: Test get-hz-versions action
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run get-hz-versions composite action
+        id: hz_versions
+        uses: ./get-hz-versions
+        with:
+          working-directory: ./get-hz-versions/test-data
+
+      - name: Test
+        run: |
+          set -o errexit -o nounset -o pipefail ${RUNNER_DEBUG:+-x}
+          source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)"
+
+          TESTS_RESULT=0
+          
+          assert_equals() {
+            local name=$1
+            local expected=$2
+            local actual=$3
+            local msg="$name should be equal to $expected"
+            assert_eq "$expected" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
+          }
+          
+          EXPECTED_OSS="1.2.4"
+          EXPECTED_OSS_LAST_RELEASED="1.2.2"
+          EXPECTED_EE="1.2.3"
+          assert_equals "HZ_VERSION_OSS" "$EXPECTED_OSS" "${{ steps.hz_versions.outputs.HZ_VERSION_OSS }}"
+          assert_equals "LAST_RELEASED_HZ_VERSION_OSS" "$EXPECTED_OSS_LAST_RELEASED" "${{ steps.hz_versions.outputs.LAST_RELEASED_HZ_VERSION_OSS }}"
+          assert_equals "HZ_VERSION_EE" "$EXPECTED_EE" "${{ steps.hz_versions.outputs.HZ_VERSION_EE }}"
+
+          assert_eq 0 "$TESTS_RESULT" "All tests should pass"
