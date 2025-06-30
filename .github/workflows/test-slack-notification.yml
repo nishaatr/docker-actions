@@ -1,0 +1,17 @@
+name: Test slack-notification action
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run action
+        uses: ./slack-notification
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel: "#test-channel"

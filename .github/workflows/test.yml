@@ -6,3 +6,7 @@ on:
 jobs:
   test-get-hz-versions:
     uses: ./.github/workflows/test-get-hz-versions.yml
+
+  test-slack-notification:
+    uses: ./.github/workflows/test-slack-notification.yml
+    secrets: inherit
