@@ -1,0 +1,53 @@
+name: Test get-supported-jdks action
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test scripts
+        run: ./get-supported-jdks/test_scripts.sh
+
+      - name: Run get-supported-jdks 5.3.8
+        id: jdks_5_3_8
+        uses: ./get-supported-jdks
+        with:
+          HZ_VERSION: 5.3.8
+
+      - name: Run get-supported-jdks 5.4.0
+        id: jdks_5_4_0
+        uses: ./get-supported-jdks
+        with:
+          HZ_VERSION: 5.4.0
+
+      - name: Run get-supported-jdks 5.4.1
+        id: jdks_5_4_1
+        uses: ./get-supported-jdks
+        with:
+          HZ_VERSION: 5.4.1
+
+      - name: Test
+        run: |
+          set -o errexit -o nounset -o pipefail ${RUNNER_DEBUG:+-x}
+          source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)"
+
+          TESTS_RESULT=0
+          
+          assert_equals() {
+            local version=$1
+            local expected=$2
+            local actual=$3
+            local msg="Supported JDKs for $version should be equal to $expected"
+            assert_eq "$expected" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
+          }
+          
+          assert_equals "5.3.8" "['11', '17']" "${{ steps.jdks_5_3_8.outputs.jdks }}"
+          assert_equals "5.4.0" "['17', '21']" "${{ steps.jdks_5_4_0.outputs.jdks }}"
+          assert_equals "5.4.1" "['17', '21']" "${{ steps.jdks_5_4_1.outputs.jdks }}"
+
+          assert_eq 0 "$TESTS_RESULT" "All tests should pass"

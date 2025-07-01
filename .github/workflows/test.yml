@@ -4,9 +4,35 @@ on:
   workflow_dispatch:
 
 jobs:
+  test-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
   test-get-hz-versions:
     uses: ./.github/workflows/test-get-hz-versions.yml
 
   test-slack-notification:
     uses: ./.github/workflows/test-slack-notification.yml
     secrets: inherit
+
+  test-get-supported-jdks:
+    uses: ./.github/workflows/test-get-supported-jdks.yml
+
+  assert-all-jobs-succeeded:
+    runs-on: ubuntu-latest
+    needs:
+      - test-get-hz-versions
+      - test-slack-notification
+      - test-get-supported-jdks
+    if: always()
+    steps:
+      - name: Check all jobs succeeded
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "❌ Some jobs failed or were cancelled"
+            exit 1
+          else
+            echo "✅ All jobs completed successfully!"
+          fi
