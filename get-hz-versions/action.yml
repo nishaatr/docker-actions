@@ -11,33 +11,35 @@ inputs:
 outputs:
   HZ_VERSION_OSS:
     description: Hazelcast OSS version
-    value: ${{ steps.get_oss_vars.outputs.HZ_VERSION_OSS }}
+    value: ${{ steps.get_docker_vars.outputs.HZ_VERSION_OSS }}
   LAST_RELEASED_HZ_VERSION_OSS:
     description: Last released Hazelcast OSS version
-    value: ${{ steps.get_oss_vars.outputs.LAST_RELEASED_HZ_VERSION_OSS }}
+    value: ${{ steps.get_maven_vars.outputs.LAST_RELEASED_HZ_VERSION_OSS }}
   HZ_VERSION_EE:
     description: Hazelcast EE version
-    value: ${{ steps.get_ee_vars.outputs.HZ_VERSION_EE }}
+    value: ${{ steps.get_docker_vars.outputs.HZ_VERSION_EE }}
 
 runs:
   using: "composite"
   steps:
-    - name: Setup OSS variables
-      id: get_oss_vars
+    - name: Get Dockerfile variables
+      id: get_docker_vars
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        HZ_VERSION_OSS=$(awk -F '=' '/^ARG HZ_VERSION=/ {print $2}' hazelcast-oss/Dockerfile)
-        echo "HZ_VERSION_OSS=$HZ_VERSION_OSS" >> $GITHUB_OUTPUT
+        get_hz_version() {
+          local dockerfile=$1
+          awk -F '=' '/^ARG HZ_VERSION=/ {print $2}' ${dockerfile}
+        }
 
+        echo "HZ_VERSION_OSS=$(get_hz_version hazelcast-oss/Dockerfile)" >> ${GITHUB_OUTPUT}
+        echo "HZ_VERSION_EE=$(get_hz_version hazelcast-enterprise/Dockerfile)" >> ${GITHUB_OUTPUT}
+
+    - name: Get Maven variables
+      id: get_maven_vars
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
         source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/master/hazelcast-oss/maven.functions.sh)"
-        LAST_RELEASED_HZ_VERSION_OSS="$(get_latest_version com.hazelcast hazelcast-distribution https://repo1.maven.org/maven2)"
-        echo "LAST_RELEASED_HZ_VERSION_OSS=$LAST_RELEASED_HZ_VERSION_OSS" >> $GITHUB_OUTPUT
-
-    - name: Setup EE variables
-      id: get_ee_vars
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        HZ_VERSION_EE=$(awk -F '=' '/^ARG HZ_VERSION=/ {print $2}' hazelcast-enterprise/Dockerfile)
-        echo "HZ_VERSION_EE=$HZ_VERSION_EE" >> $GITHUB_OUTPUT
+        LAST_RELEASED_HZ_VERSION_OSS="$(get_latest_version com.hazelcast hazelcast-distribution https://repo.maven.apache.org/maven2)"
+        echo "LAST_RELEASED_HZ_VERSION_OSS=$LAST_RELEASED_HZ_VERSION_OSS" >> ${GITHUB_OUTPUT}
