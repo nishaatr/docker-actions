@@ -7,6 +7,9 @@ inputs:
   slack-channel:
     description: Slack channel to send the notification to
     default: "#hazelcast-docker-notifications"
+  status:
+    description: The status to set, otherwise inherited from the enclosing job
+    required: false
 runs:
   using: "composite"
   steps:
@@ -14,7 +17,7 @@ runs:
       id: slack_notification
       with:
         fields: all
-        status: ${{ job.status }}
+        status: ${{ inputs.status || job.status }}
         channel: ${{ inputs.slack-channel }}
       env:
         SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
