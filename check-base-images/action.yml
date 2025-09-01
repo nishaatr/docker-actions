@@ -1,0 +1,47 @@
+name: Check base image outdated
+description: Check if the base image or system packages are outdated
+
+inputs:
+  ref:
+    description: hazelcast-docker branch to check
+    required: true
+  image-name:
+    description: Name of the image (e.g. hazelcast/hazelcast:5.5.0-slim)
+    required: true
+  dockerfile-path:
+    description: Path to the dockerfile (e.g. hazelcast-enterprise/Dockerfile)
+    required: true
+
+outputs:
+  outdated:
+    description: If the specified image is outdated
+    value: ${{ steps.check.outputs.outdated }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v5
+      with:
+        repository: hazelcast/hazelcast-docker
+        ref: ${{ inputs.ref }}
+        path: hazelcast-docker
+
+    - shell: bash
+      id: check
+      run: |
+        . ${{ github.action_path }}/check-base-images.functions.sh
+
+        image=${{ inputs.image-name }}
+        dockerfile=hazelcast-docker/${{ inputs.dockerfile-path }}
+
+        echodebug "Checking ${image}"
+        if base_image_outdated_from_dockerfile "${image}" "${dockerfile}"; then
+          echo "outdated=true" >> ${GITHUB_OUTPUT}
+          echonotice "${image} needs rebuild"
+        elif packages_updatable_from_dockerfile "${image}" "${dockerfile}"; then
+          echo "outdated=true" >> ${GITHUB_OUTPUT}
+          echonotice "System package upgrades for ${image} available"
+        else
+          echo "outdated=false" >> ${GITHUB_OUTPUT}
+          echodebug "${image} is up-to-date"
+        fi

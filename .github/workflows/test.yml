@@ -10,6 +10,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+  test-check-base-images:
+    uses: ./.github/workflows/test-check-base-images.yml
+
   test-check-redhat-service-status:
     uses: ./.github/workflows/test-check-redhat-service-status.yml
 
@@ -29,6 +32,7 @@ jobs:
   assert-all-jobs-succeeded:
     runs-on: ubuntu-latest
     needs:
+      - test-check-base-images
       - test-check-redhat-service-status
       - test-get-hz-versions
       - test-get-supported-jdks

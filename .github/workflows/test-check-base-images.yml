@@ -1,0 +1,52 @@
+name: Test check-base-images action
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Test scripts
+        run: ./check-base-images/test_scripts.sh
+
+      - name: Run check-base-images OSS
+        id: check-base-images-oss
+        uses: ./check-base-images
+        with:
+          ref: v5.0.1
+          image-name: hazelcast/hazelcast:5.0.1-slim
+          dockerfile-path: hazelcast/Dockerfile
+
+      - name: Run check-base-images EE
+        id: check-base-images-ee
+        uses: ./check-base-images
+        with:
+          ref: v5.0.1
+          image-name: hazelcast/hazelcast-enterprise:5.0.1-slim
+          dockerfile-path: hazelcast-enterprise/Dockerfile
+
+      - name: Test
+        run: |
+          set -o errexit -o nounset -o pipefail ${RUNNER_DEBUG:+-x}
+          source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)"
+
+          TESTS_RESULT=0
+          
+          assert_equals() {
+            local image=$1
+            local expected=$2
+            local actual=$3
+            local msg="Outdated for $image should be equal to $expected"
+            assert_eq "$expected" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
+          }
+
+
+          assert_equals "hazelcast/hazelcast:5.0.1-slim" "true" "${{ steps.check-base-images-oss.outputs.outdated }}"
+          assert_equals "hazelcast/hazelcast-enterprise:5.0.1-slim" "true" "${{ steps.check-base-images-ee.outputs.outdated }}"
+
+          assert_eq 0 "$TESTS_RESULT" "All tests should pass"
+
