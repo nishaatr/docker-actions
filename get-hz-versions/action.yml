@@ -9,15 +9,12 @@ inputs:
     default: .
 
 outputs:
-  HZ_VERSION_OSS:
-    description: Hazelcast OSS version
-    value: ${{ steps.get_docker_vars.outputs.HZ_VERSION_OSS }}
+  HZ_VERSION:
+    description: Hazelcast version
+    value: ${{ steps.get_docker_vars.outputs.HZ_VERSION }}
   LAST_RELEASED_HZ_VERSION_OSS:
     description: Last released Hazelcast OSS version
     value: ${{ steps.get_maven_vars.outputs.LAST_RELEASED_HZ_VERSION_OSS }}
-  HZ_VERSION_EE:
-    description: Hazelcast EE version
-    value: ${{ steps.get_docker_vars.outputs.HZ_VERSION_EE }}
 
 runs:
   using: "composite"
@@ -27,13 +24,22 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
+        . ${{ github.action_path }}/../.github/scripts/logging.functions.sh
+
         get_hz_version() {
           local dockerfile=$1
           awk -F '=' '/^ARG HZ_VERSION=/ {print $2}' ${dockerfile}
         }
 
-        echo "HZ_VERSION_OSS=$(get_hz_version hazelcast-oss/Dockerfile)" >> ${GITHUB_OUTPUT}
-        echo "HZ_VERSION_EE=$(get_hz_version hazelcast-enterprise/Dockerfile)" >> ${GITHUB_OUTPUT}
+        HZ_VERSION_OSS=$(get_hz_version hazelcast-oss/Dockerfile)
+        HZ_VERSION_EE=$(get_hz_version hazelcast-enterprise/Dockerfile)
+
+        if [[ "${HZ_VERSION_OSS}" == "${HZ_VERSION_EE}" ]]; then
+          echo "HZ_VERSION=${HZ_VERSION_OSS}" >> ${GITHUB_OUTPUT}
+        else
+          echoerr "Versions extracted from Dockerfile(s) do not match (${HZ_VERSION_OSS} / ${HZ_VERSION_EE})!"
+          exit 1
+        fi
 
     - name: Get Maven variables
       id: get_maven_vars

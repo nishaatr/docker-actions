@@ -38,10 +38,7 @@ jobs:
             assert_not_empty "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
           }
           
-          EXPECTED_OSS="1.2.4"
-          EXPECTED_EE="1.2.3"
-          assert_equals "HZ_VERSION_OSS" "$EXPECTED_OSS" "${{ steps.hz_versions.outputs.HZ_VERSION_OSS }}"
+          assert_equals "HZ_VERSION" "1.2.3" "${{ steps.hz_versions.outputs.HZ_VERSION }}"
           assert_populated "LAST_RELEASED_HZ_VERSION_OSS" "${{ steps.hz_versions.outputs.LAST_RELEASED_HZ_VERSION_OSS }}"
-          assert_equals "HZ_VERSION_EE" "$EXPECTED_EE" "${{ steps.hz_versions.outputs.HZ_VERSION_EE }}"
 
           assert_eq 0 "$TESTS_RESULT" "All tests should pass"

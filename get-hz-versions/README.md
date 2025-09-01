@@ -12,9 +12,8 @@ A GitHub Action that extracts Hazelcast OSS and EE version information from Dock
 
 | Name                         | Description                                                 |
 |------------------------------|-------------------------------------------------------------|
-| HZ_VERSION_OSS               | Hazelcast OSS version from `hazelcast-oss/Dockerfile`       |
+| HZ_VERSION                   | Hazelcast version from the `Dockerfile`                     |
 | LAST_RELEASED_HZ_VERSION_OSS | Latest released Hazelcast OSS version from Maven Central    |
-| HZ_VERSION_EE                | Hazelcast EE version from `hazelcast-enterprise/Dockerfile` |
 
 ## Usage
 
@@ -28,5 +27,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hazelcast/docker-actions/get-hz-versions@master
         id: hz_versions
-      - run: echo "OSS Version: ${{ steps.hz_versions.outputs.HZ_VERSION_OSS }}"
+      - run: echo "HZ Version: ${{ steps.hz_versions.outputs.HZ_VERSION }}"
 ```
