@@ -1,0 +1,14 @@
+name: Test check-redhat-service-status action
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run check-redhat-service-status composite action
+        uses: ./check-redhat-service-status
