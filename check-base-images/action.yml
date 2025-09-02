@@ -29,7 +29,10 @@ runs:
     - shell: bash
       id: check
       run: |
-        . ${{ github.action_path }}/check-base-images.functions.sh
+        . ${{ github.action_path }}/../.github/scripts/logging.functions.sh
+        pushd ${{ github.action_path }}/..
+          . check-base-images/check-base-images.functions.sh
+        popd
 
         image=${{ inputs.image-name }}
         dockerfile=hazelcast-docker/${{ inputs.dockerfile-path }}
