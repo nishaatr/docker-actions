@@ -26,14 +26,28 @@ function packages_updatable() {
 
   if [[ "${base_image}" == *"alpine"* ]]; then
     output=$(docker run --user 0 --rm "${image}" sh -c 'apk update >/dev/null && apk list --upgradeable')
-    echodebug "${output}"
-    [[ -n "${output}" ]]
+
+    if [[ -n "${output}" ]]; then
+      echonotice "${output}"
+      return 0
+    else
+      echodebug "${output}"
+      return 1
+    fi
   elif [[ "${base_image}" == *"redhat/ubi"* ]]; then
     # use assumeno as a workaround for lack of dry-run option
     output=$(docker run --user 0 --rm "${image}" sh -c "microdnf --assumeno upgrade --nodocs")
-    echodebug "${output}"
-    local package_upgrades_count=$(echo "${output}" | grep --count Upgrading)
-    [[ "${package_upgrades_count}" -ne 0 ]]
+
+    local package_upgrades_count
+    package_upgrades_count=$(grep --count Upgrading <<< "${output}")
+
+    if [[ "${package_upgrades_count}" -ne 0 ]]; then
+      echonotice "${output}"
+      return 0
+    else
+      echodebug "${output}"
+      return 1
+    fi
   else
     echoerr "Unsupported base image: ${base_image}"
     exit 1
@@ -43,8 +57,11 @@ function packages_updatable() {
 # Returns the base image of the specified Dockerfile
 function get_base_image_name() {
   local dockerfile=$1
+
   # Read the (implicitly first) `FROM` line
-  grep '^FROM ' "${dockerfile}" | cut -d' ' -f2
+  local line
+  line=$(grep '^FROM ' "${dockerfile}")
+  cut -d' ' -f2 <<< "${line}"
 }
 
 # Determine if the specified image is outdated when compared to it's base image
@@ -72,7 +89,16 @@ function base_image_outdated() {
   base_image_sha=$(get_base_image_sha "${base_image}")
   local current_image_sha
   current_image_sha=$(get_base_image_sha "${current_image}")
-  [[ "${current_image_sha}" != "${base_image_sha}" ]]
+
+  local message="${current_image} has SHA ${current_image_sha}, compared to SHA ${base_image_sha} of ${base_image}"
+
+  if [[ "${current_image_sha}" == "${base_image_sha}" ]]; then
+    echodebug "${message}"
+    return 1
+  else
+    echonotice "${message}"
+    return 0
+  fi
 }
 
 function get_base_image_sha() {
