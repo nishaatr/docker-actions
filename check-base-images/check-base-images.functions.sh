@@ -22,16 +22,17 @@ function packages_updatable() {
   local image=$1
   local base_image=$2
 
+  local log_header="Upgradeable packages output:"
   local output
 
   if [[ "${base_image}" == *"alpine"* ]]; then
     output=$(docker run --user 0 --rm "${image}" sh -c 'apk update >/dev/null && apk list --upgradeable')
 
     if [[ -n "${output}" ]]; then
-      echonotice "${output}"
+      echonotice "${log_header}" "${output}"
       return 0
     else
-      echodebug "${output}"
+      # Nothing to log
       return 1
     fi
   elif [[ "${base_image}" == *"redhat/ubi"* ]]; then
@@ -42,10 +43,10 @@ function packages_updatable() {
     package_upgrades_count=$(grep --count Upgrading <<< "${output}")
 
     if [[ "${package_upgrades_count}" -ne 0 ]]; then
-      echonotice "${output}"
+      echonotice "${log_header}" "${output}"
       return 0
     else
-      echodebug "${output}"
+      echodebug "${log_header}" "${output}"
       return 1
     fi
   else
