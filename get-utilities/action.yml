@@ -1,23 +1,21 @@
 name: Resolve which editions should build
 inputs:
-  release-type:
-    description: EE, OS, ALL etc
+  scope:
+    description: Include test sh files like assert.sh
     type: choice
     options:
-      - ALL
-      - OSS
-      - EE
-    required: true
+      - test
+      - run
+    required: false
+    default: 'run'
 outputs:
-  should_build_oss:
+  scripts:
     value: ${{ steps.resolve-editions.outputs.should_build_oss }}
-  should_build_ee:
-    value: ${{ steps.resolve-editions.outputs.should_build_ee }}
 runs:
   using: "composite"
   steps:
     - shell: bash
-      id: resolve-editions
+      id: get-scripts
       run: |
         source ${{ github.action_path }}/build.functions.sh
 
