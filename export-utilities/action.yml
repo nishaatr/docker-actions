@@ -9,9 +9,9 @@ inputs:
     required: false
     default: 'run'
 outputs:
-  export-path:
+  path:
     value: ${{ steps.export-scripts.outputs.export-path }}
-  export-sources:
+  sources:
     value: ${{ steps.export-scripts.outputs.export-sources }}
 runs:
   using: "composite"
