@@ -9,10 +9,10 @@ inputs:
     required: false
     default: 'run'
 outputs:
-  utils-path:
-    value: ${{ steps.export-scripts.outputs.utils-path }}
-  utils-sources:
-    value: ${{ steps.export-scripts.outputs.utils-path }}
+  export-path:
+    value: ${{ steps.export-scripts.outputs.export-path }}
+  export-sources:
+    value: ${{ steps.export-scripts.outputs.export-sources }}
 runs:
   using: "composite"
   steps:
@@ -20,7 +20,14 @@ runs:
       id: export-scripts
       run: |
         TEMP_FOLDER=$(mktemp -d)
-        find "${TEMP_FOLDER}" -name "*.sh" -type f -print0 2>/dev/null | xargs -0 cp -t 
-        echo "utils-path=${TEMP_FOLDER}" >> ${GITHUB_OUTPUT}
+        CAT_SORUCES=""
+        for i in $(find "./test-gh-utils" -name "*.sh" -type f -maxdepth 1 2>/dev/null); do
+            #cp "$i" test-gh-utils/
+            CAT_SORUCES+=$(cat "$i")
+            CAT_SORUCES+=$'\n'
+        done
+
+        echo "export-path=${TEMP_FOLDER}" >> ${GITHUB_OUTPUT}
+        echo "export-sources=${CAT_SORUCES}" >> ${GITHUB_OUTPUT}
 
         
