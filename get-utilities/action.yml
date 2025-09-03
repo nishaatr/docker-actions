@@ -9,15 +9,18 @@ inputs:
     required: false
     default: 'run'
 outputs:
-  scripts:
-    value: ${{ steps.resolve-editions.outputs.should_build_oss }}
+  utils-path:
+    value: ${{ steps.export-scripts.outputs.utils-path }}
+  utils-sources:
+    value: ${{ steps.export-scripts.outputs.utils-path }}
 runs:
   using: "composite"
   steps:
     - shell: bash
-      id: get-scripts
+      id: export-scripts
       run: |
-        source ${{ github.action_path }}/build.functions.sh
+        TEMP_FOLDER=$(mktemp -d)
+        find "${TEMP_FOLDER}" -name "*.sh" -type f -print0 2>/dev/null | xargs -0 cp -t 
+        echo "utils-path=${TEMP_FOLDER}" >> ${GITHUB_OUTPUT}
 
-        echo "should_build_oss=$(should_build_oss "${{ inputs.release-type }}")" >> ${GITHUB_OUTPUT}
-        echo "should_build_ee=$(should_build_ee "${{ inputs.release-type }}")" >> ${GITHUB_OUTPUT}
+        
