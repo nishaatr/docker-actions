@@ -21,8 +21,8 @@ runs:
       run: |
         TEMP_FOLDER=$(mktemp -d)
         CAT_SORUCES=""
-        for i in $(find "./test-gh-utils" -name "*.sh" -type f -maxdepth 1 2>/dev/null); do
-            #cp "$i" test-gh-utils/
+        for i in $(find "./${{ github.action_path }}" -name "*.sh" -type f -maxdepth 1 2>/dev/null); do
+            cp "$i" "${TEMP_FOLDER}"
             CAT_SORUCES+=$(cat "$i")
             CAT_SORUCES+=$'\n'
         done
