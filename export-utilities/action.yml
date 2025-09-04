@@ -37,7 +37,7 @@ runs:
         CAT_SORUCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
 
         echo "${CAT_SORUCES}"
-        #echo "export-sources=${CAT_SORUCES}" >> ${GITHUB_OUTPUT}
+        echo "export-sources=${CAT_SORUCES}" >> ${GITHUB_OUTPUT}
 
         # if [[ "${{ inputs.export-files }}" == 'true' ]]; then
         #   TEMP_FOLDER=$(mktemp -d)
