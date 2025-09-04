@@ -1,4 +1,4 @@
-set -euo pipefail ${RUNNER_DEBUG:+-x}
+#set -euo pipefail ${RUNNER_DEBUG:+-x}
 
 function my_func1() {
   echo "my_func1()"
