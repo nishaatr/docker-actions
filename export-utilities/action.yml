@@ -29,10 +29,6 @@ runs:
       run: |
         UTIL_SCRIPTS="${{ github.action_path }}/scripts"
 
-        ls -al $UTIL_SCRIPTS
-
-        sed --version
-
         if [[ "${{ inputs.scope }}" == "test" ]]; then
           curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh > "${UTIL_SCRIPTS}/assert.sh"
         fi
