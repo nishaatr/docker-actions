@@ -43,9 +43,3 @@ runs:
           echo "export-folder=${TEMP_FOLDER}" >> ${GITHUB_OUTPUT}
           echo "export-path=${TEMP_FOLDER}:$PATH" >> ${GITHUB_OUTPUT}
         fi
-
-
-
-
-
-        
