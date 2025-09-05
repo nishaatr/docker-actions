@@ -2,7 +2,8 @@
 
 UTILS_PATH=$1
 
-# source <(cat ${UTILS_PATH}/*.sh)
+echo "XXXXXXXXX ${UTILS_PATH}"
+source <(cat ${UTILS_PATH}/*.sh)
 
 # echonotice "I am running test-export-utils.sh"
 # echowarning "I am running test-export-utils.sh"
