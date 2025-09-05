@@ -36,8 +36,9 @@ runs:
         # Combine all file contents and add newline end of each file
         SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
 
-        # Use base64 as suggested here https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
-        # Allows single line output and avoids GitHub interference
+        # Use 'base64' suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
+        # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
+        # The caller has to 'base64 --decode' before using 'outputs.sources'
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
