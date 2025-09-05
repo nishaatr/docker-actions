@@ -35,8 +35,10 @@ runs:
 
         # Read file contents and add newline end of each file. 
         SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
-        SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
-        echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
+        #SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
+        #echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
+
+        echo "export-sources<<EOF"$'\n'"$SOURCES"$'\n'EOF >> ${GITHUB_OUTPUT}
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
           TEMP_FOLDER=$(mktemp -d)
