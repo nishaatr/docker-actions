@@ -2,7 +2,7 @@
 
 UTILS_PATH=$1
 
-source ${UTILS_PATH}/logging.functions.sh
+source ./logging.functions.sh
 
 echonotice "I am running test-export-utils.sh"
 echowarning "I am running test-export-utils.sh"
