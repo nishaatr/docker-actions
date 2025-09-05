@@ -1,0 +1,34 @@
+name: Nested actions. Export utils and also uses caller exported utils
+inputs:
+  utils-path:
+    type: string
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Export utils
+      id: export-utils
+      uses: nishaatr/docker-actions/export-utilities@master
+      with:
+        scope: 'test'
+    - name: Import utils from local export
+      shell: bash
+      run: |
+          source /dev/stdin <<< "$(echo ${{ steps.export-utils.outputs.sources }} | base64 --decode)"
+
+          echonotice "I am using local sources"
+          echowarning "I am using local sources"
+          log_header "Tests HEADER"
+          my_func1
+          my_func2
+
+    - name: Import utils from caller export
+      shell: bash
+      run: |
+          source <(cat ${{ inputs.utils-path }}/*.sh)
+
+          echonotice "I am using callers export"
+          echowarning "I am using callers soexporturces"
+          log_header "Tests HEADER"
+          my_func1
+          my_func2
