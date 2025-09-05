@@ -36,10 +36,10 @@ runs:
         # Read contents and add newline end of each file. Courtesy of https://unix.stackexchange.com/a/628618
         CAT_SORUCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
         CAT_SORUCES+=$'\n'
-        CAT_SORUCES=$(echo -n ${CAT_SORUCES} | base64)
+        CAT_SORUCES=$(echo -n ${CAT_SORUCES} | base64 -w 0)
         echo "XXXXXXXX ${CAT_SORUCES}"
-        #echo "export-sources=${CAT_SORUCES}" >> ${GITHUB_OUTPUT}
-        echo "export-sources<<EOF"$'\n'"$CAT_SORUCES"$'\n'EOF >> ${GITHUB_OUTPUT}
+        echo "export-sources=${CAT_SORUCES}" >> ${GITHUB_OUTPUT}
+        #echo "export-sources<<EOF"$'\n'"$CAT_SORUCES"$'\n'EOF >> ${GITHUB_OUTPUT}
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
           TEMP_FOLDER=$(mktemp -d)
