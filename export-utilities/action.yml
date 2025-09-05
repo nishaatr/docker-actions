@@ -39,7 +39,7 @@ runs:
         # Use base64 as suggested here https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
         #
         # 1. Ensures GitHUb doesn't reformat content especially with `logging.functions.sh` where we use GitHub commands
-        # 2. Without base64 the output needs to be set as multiline so having single bas64 line is simpler
+        # 2. Allows to set output as single line rather than multiline (which is supported)
         #
         # base64 ensures we future proof without worrying about file contents
         #
