@@ -35,8 +35,8 @@ runs:
 
         # Read contents and add newline end of each file. Courtesy of https://unix.stackexchange.com/a/628618
         SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
-        SOURCES+=$'\n'
-        SOURCES=$(echo "${SOURCES}" | base64 -w 0)
+        #SOURCES+=$'\n'
+        SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
         #echo "export-sources<<EOF"$'\n'"$SOURCES"$'\n'EOF >> ${GITHUB_OUTPUT}
 
