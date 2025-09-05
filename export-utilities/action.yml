@@ -37,11 +37,7 @@ runs:
         SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
 
         # Use base64 as suggested here https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
-        #
-        # 1. Ensures GitHUb doesn't reformat content especially with `logging.functions.sh` where we use GitHub commands
-        # 2. Allows to set output as single line rather than multiline (which is supported)
-        #
-        # Base64 future proofs without worrying about file contents at small expense of base64 encode/decode
+        # Allows single line output and avoids GitHub interference
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
