@@ -41,7 +41,7 @@ runs:
         # 1. Ensures GitHUb doesn't reformat content especially with `logging.functions.sh` where we use GitHub commands
         # 2. Allows to set output as single line rather than multiline (which is supported)
         #
-        # base64 ensures we future proof without worrying about file contents
+        # Base64 future proofs without worrying about file contents at small expense of base64 encode/decode
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 -w 0)
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
