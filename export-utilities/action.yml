@@ -37,7 +37,7 @@ runs:
         SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
         SOURCES+=$'\n'
         echo "TTTTTTTTTTTTT ${SOURCES}"
-        SOURCES=$(echo -n ${SOURCES} | base64 -w 0)
+        SOURCES=$(echo ${SOURCES} | base64 -w 0)
         echo "XXXXXXXX ${SOURCES}"
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
         #echo "export-sources<<EOF"$'\n'"$SOURCES"$'\n'EOF >> ${GITHUB_OUTPUT}
