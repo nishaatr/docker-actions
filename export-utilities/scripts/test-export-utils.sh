@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -eu ${RUNNER_DEBUG:+-x}
-
 UTILS_PATH=$1
 
 source <(cat ${UTILS_PATH}/*.sh)
