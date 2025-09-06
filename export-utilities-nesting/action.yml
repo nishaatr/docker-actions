@@ -25,7 +25,7 @@ runs:
     - name: Import utils from caller export
       shell: bash
       run: |
-          source <(cat ${{ inputs.utils-path }}/*.sh)
+          source <(cat ${{ inputs.utils-path }}/*functions.sh)
 
           echonotice "I am using callers export"
           echowarning "I am using callers soexporturces"

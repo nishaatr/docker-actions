@@ -30,11 +30,11 @@ runs:
         UTIL_SCRIPTS="${{ github.action_path }}/scripts"
 
         if [[ "${{ inputs.scope }}" == "test" ]]; then
-          curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh > "${UTIL_SCRIPTS}/assert.sh"
+          curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh > "${UTIL_SCRIPTS}/assert.functions.sh"
         fi
 
         # Load all file contents and add newline end of each file
-        SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.sh)
+        SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.functions.sh)
 
         # Use 'base64' suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
         # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
