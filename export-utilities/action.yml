@@ -41,6 +41,7 @@ runs:
         # The caller has to 'base64 --decode' before using 'outputs.sources'
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
+        echo "::add-mask::${SOURCES}"
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
