@@ -47,7 +47,8 @@ runs:
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
-        [[ "{{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
+        #[[ "{{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
+        echo "::add-mask::${SOURCES}"
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
           TEMP_FOLDER=$(mktemp -d)
