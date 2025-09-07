@@ -41,8 +41,9 @@ runs:
         # The caller has to 'base64 --decode' before using 'outputs.sources'. Mask SOURCES to reduce logging
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
+        echo "::add-mask::${SOURCES}"
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
-        #echo "::add-mask::${SOURCES}"
+ 
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
           TEMP_FOLDER=$(mktemp -d)
