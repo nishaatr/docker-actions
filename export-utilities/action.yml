@@ -1,7 +1,7 @@
 name: Resolve which editions should build
 inputs:
   scope:
-    description: Include `test` sh files like assert.sh , otherwise, only standard utils
+    description: Include `test` *.sh files like assert.sh , otherwise, only standard utils
     type: boolean
     options:
       - test
@@ -9,7 +9,12 @@ inputs:
     required: false
     default: 'run'
   export-files:
-    description: Copies utils files to temp 'outputs.folder'
+    description: Export utils files to temp 'outputs.folder'
+    type: boolean
+    required: false
+    default: 'true'
+  mask-sources:
+    description: Mask 'outputs.sources' to reduce logging. Enable when passing 'outputs.sources' to other jobs
     type: boolean
     required: false
     default: 'true'
@@ -38,12 +43,11 @@ runs:
 
         # Use 'base64' suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
         # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
-        # The caller has to 'base64 --decode' before using 'outputs.sources'. Mask SOURCES to reduce logging
+        # The caller has to 'base64 --decode' before using 'outputs.sources'
         #
         SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
-        echo "::add-mask::${SOURCES}"
         echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
- 
+        [[ "{{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
 
         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
           TEMP_FOLDER=$(mktemp -d)
