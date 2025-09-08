@@ -33,7 +33,7 @@ runs:
             FOLDERS="$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
             while read -ra scope; do
                 while read -ra folder; do
-                echo 111111111111111111
+                echo "111111111111111111 $scope $folder" 
                     if [[ "${folder}" =~ /${scope}$ || "${scope}" == "all" ]]; then
                     echo 22222222222222222
                         # Load all file contents and add newline end of each file
