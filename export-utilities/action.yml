@@ -1,15 +1,12 @@
 name: Resolve which editions should build
 inputs:
   scope:
-    description: Include `test` *.sh files like assert.sh , otherwise, only standard utils
-    type: boolean
-    options:
-      - test
-      - run
+    description: The name of script sub-folders to export. Example 'all|common|test'. The 'test' will export `assert.sh`
+    type: string
     required: false
-    default: 'run'
+    default: 'all'
   export-files:
-    description: Export utils files to temp 'outputs.folder'
+    description: Export utils files to temp 'outputs.folder'. Disable only 'outputs.sources' is needed
     type: boolean
     required: false
     default: 'true'
@@ -32,26 +29,49 @@ runs:
     - shell: bash
       id: export-scripts
       run: |
-        UTIL_SCRIPTS="${{ github.action_path }}/scripts"
+        function export_files_scoped() {
+            FOLDERS=find "${{ github.action_path }}"" -mindepth 1 -maxdepth 1 -type d
+            while read -ra scope; do
+                while read -ra folder; do
+                    if [[ "${folder}" =~ /${scope}$ || "${scope}" == "all" ]]; then
+                        # Load all file contents and add newline end of each file
+                        SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
+            
+                        if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+                            find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER_SCRIPTS}"
+                            find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER}"
+                        fi
+                    fi
+                done <<< "${FOLDERS}"
+            done <<< "${${{ inputs.scope }}//|/$'\n'}"
+        }
 
-        if [[ "${{ inputs.scope }}" == "test" ]]; then
-          curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh > "${UTIL_SCRIPTS}/assert.functions.sh"
-        fi
+        function export_files_tests() {
+            if [[ "${{ inputs.scope }}" =~ test|all ]]; then
+                local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+                SOURCES+="${sources_test}"$'\n'
 
-        # Load all file contents and add newline end of each file
-        SOURCES=$(sed -s -e '${p;g;}' ${UTIL_SCRIPTS}/*.functions.sh)
+                if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+                    echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
+                fi
+            fi
+        }
 
-        # Use 'base64' suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
-        # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
-        # The caller has to 'base64 --decode' before using 'outputs.sources'
-        #
-        SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
-        echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
-        [[ "${{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
+        function set_outputs() {
+            # Use 'base64' as suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
+            # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
+            # The caller has to 'base64 --decode' before using 'outputs.sources'
+            #
+            SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
+            echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
+            [[ "${{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
+            echo "export-folder=${TEMP_FOLDER_SCRIPTS}" >> ${GITHUB_OUTPUT}
+            echo "export-path=${TEMP_FOLDER}:$PATH" >> ${GITHUB_OUTPUT}
+        }
 
-        if [[ "${{ inputs.export-files }}" == 'true' ]]; then
-          TEMP_FOLDER=$(mktemp -d)
-          find "${UTIL_SCRIPTS}" -name "*.sh" -type f -print0 | xargs -0 cp -t "${TEMP_FOLDER}"
-          echo "export-folder=${TEMP_FOLDER}" >> ${GITHUB_OUTPUT}
-          echo "export-path=${TEMP_FOLDER}:$PATH" >> ${GITHUB_OUTPUT}
-        fi
+        SOURCES=()
+        TEMP_FOLDER=$(mktemp -d)
+        TEMP_FOLDER_SCRIPTS="${TEMP_FOLDER}/scripts"
+        export_files_scoped
+        export_files_tests
+        set_outputs
