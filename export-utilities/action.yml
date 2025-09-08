@@ -32,7 +32,7 @@ runs:
         function export_files_scoped() {
           while read -ra folder; do
               if [[ "${folder}" =~ "${SCOPE}" || "${SCOPE}" =~ all ]]; then
-                  # Load all files in the folder and add newline end of each file
+                  # Load all files in folder and add newline end of each file
                   SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
                   if [[ "${{ inputs.export-files }}" == 'true' ]]; then
                       find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER_SCRIPTS}"
