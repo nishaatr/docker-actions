@@ -9,8 +9,7 @@ runs:
     - name: Export utils
       id: export-utils
       uses: nishaatr/docker-actions/export-utilities@master
-      with:
-        scope: 'all'
+
     - name: Import utils from local export
       shell: bash
       run: |

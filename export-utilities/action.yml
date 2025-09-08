@@ -14,7 +14,7 @@ inputs:
     description: Mask 'outputs.sources' to reduce logging. Enable when passing 'outputs.sources' to other jobs
     type: boolean
     required: false
-    default: 'false'
+    default: 'true'
 outputs:
   sources:
     value: ${{ steps.export-scripts.outputs.export-sources }}
