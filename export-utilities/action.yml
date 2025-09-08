@@ -33,9 +33,8 @@ runs:
             while read -ra scope; do
                 while read -ra folder; do
                     if [[ "${folder}" =~ ${scope}$ || "${scope}" == "all" ]]; then
-                        # Load all file contents and add newline end of each file
+                        # Load all files in the folder and add newline end of each file
                         SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
-            
                         if [[ "${{ inputs.export-files }}" == 'true' ]]; then
                             find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER_SCRIPTS}"
                             find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER}"
@@ -49,7 +48,6 @@ runs:
             if [[ "${{ inputs.scope }}" =~ test|all ]]; then
                 local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
                 SOURCES+="${sources_test}"$'\n'
-
                 if [[ "${{ inputs.export-files }}" == 'true' ]]; then
                     echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
                 fi
