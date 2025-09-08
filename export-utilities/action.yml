@@ -72,6 +72,7 @@ runs:
         SOURCES=()
         TEMP_FOLDER=$(mktemp -d)
         TEMP_FOLDER_SCRIPTS="${TEMP_FOLDER}/scripts"
+        mkdir "${TEMP_FOLDER_SCRIPTS}"
         export_files_scoped
         export_files_tests
         set_outputs
