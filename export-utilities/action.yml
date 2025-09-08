@@ -30,7 +30,7 @@ runs:
       id: export-scripts
       run: |
         function export_files_scoped() {
-            FOLDERS=find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d
+            FOLDERS="$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
             while read -ra scope; do
                 while read -ra folder; do
                     if [[ "${folder}" =~ /${scope}$ || "${scope}" == "all" ]]; then
