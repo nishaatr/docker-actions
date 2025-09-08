@@ -1,4 +1,4 @@
-name: Resolve which editions should build
+name: Export util scripts
 inputs:
   scope:
     description: The name of script sub-folders to export. Example 'all|common|test'. The 'test' will export `assert.sh`
