@@ -30,40 +30,38 @@ runs:
       id: export-scripts
       run: |
         function export_files_scoped() {
-            while read -ra scope; do
-                while read -ra folder; do
-                    if [[ "${folder}" =~ ${scope}$ || "${scope}" == "all" ]]; then
-                        # Load all files in the folder and add newline end of each file
-                        SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
-                        if [[ "${{ inputs.export-files }}" == 'true' ]]; then
-                            find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER_SCRIPTS}"
-                            find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER}"
-                        fi
-                    fi
-                done <<< "$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
-            done <<< "${SCOPE//|/$'\n'}"
+          while read -ra folder; do
+              if [[ "${folder}" =~ "${SCOPE}" || "${SCOPE}" =~ all ]]; then
+                  # Load all files in the folder and add newline end of each file
+                  SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
+                  if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+                      find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER_SCRIPTS}"
+                      find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp -t "${TEMP_FOLDER}"
+                  fi
+              fi
+          done <<< "$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
         }
 
         function export_files_tests() {
-            if [[ "${{ inputs.scope }}" =~ test|all ]]; then
-                local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
-                SOURCES+="${sources_test}"$'\n'
-                if [[ "${{ inputs.export-files }}" == 'true' ]]; then
-                    echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
-                fi
-            fi
+          if [[ "${SCOPE}" =~ test|all ]]; then
+              local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+              SOURCES+="${sources_test}"$'\n'
+              if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+                  echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
+              fi
+          fi
         }
 
         function set_outputs() {
-            # Use 'base64' as suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
-            # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
-            # The caller has to 'base64 --decode' before using 'outputs.sources'
-            #
-            SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
-            echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
-            [[ "${{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
-            echo "export-folder=${TEMP_FOLDER_SCRIPTS}" >> ${GITHUB_OUTPUT}
-            echo "export-path=${TEMP_FOLDER}:$PATH" >> ${GITHUB_OUTPUT}
+          # Use 'base64' as suggested in https://github.com/orgs/community/discussions/106666#discussioncomment-8398345
+          # Allows single line output plus avoids GitHub interference (formatting, GitHub run commands etc)
+          # The caller has to 'base64 --decode' before using 'outputs.sources'
+          #
+          SOURCES=$(echo -n "${SOURCES}" | base64 --wrap 0)
+          echo "export-sources=${SOURCES}" >> ${GITHUB_OUTPUT}
+          [[ "${{ inputs.mask-sources }}" == "true" ]] && echo "::add-mask::${SOURCES}" || true
+          echo "export-folder=${TEMP_FOLDER_SCRIPTS}" >> ${GITHUB_OUTPUT}
+          echo "export-path=${TEMP_FOLDER}:$PATH" >> ${GITHUB_OUTPUT}
         }
 
         SOURCES=()
