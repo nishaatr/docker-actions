@@ -35,8 +35,8 @@ runs:
               # Load all files in folder and add newline end of each file
               SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
               if [[ "${{ inputs.export-files }}" == "true" ]]; then
-                copy_files "${folder}" "${TEMP_FOLDER_SCRIPTS}" "-name *.functions.sh"
-                copy_files "${folder}" "${TEMP_FOLDER}" "-not -name *.functions.sh"
+                copy_files "${folder}" "${TEMP_FOLDER_SCRIPTS}"
+                copy_files "${folder}" "${TEMP_FOLDER}" "-not"
               fi
             fi
           done <<< "$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
@@ -78,8 +78,8 @@ runs:
         function copy_files() {
           local src="$1"
           local dst="$2"
-          local filter="$3"
-          eval "find ${src} ${filter} -type f -print0 | xargs --null --no-run-if-empty cp --target-directory ${dst}"
+          local not_filter="$3"
+          eval "find ${src} ${not_filter} -name *.functions.sh -type f -print0 | xargs --null --no-run-if-empty cp --target-directory ${dst}"
         }
 
         SOURCES=()
