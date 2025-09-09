@@ -9,12 +9,12 @@ inputs:
     description: Export utils files to temp 'outputs.folder'. Disable only 'outputs.sources' is needed
     type: boolean
     required: false
-    default: 'true'
+    default: "true"
   mask-sources:
     description: Mask 'outputs.sources' to reduce logging. Enable when passing 'outputs.sources' to other jobs
     type: boolean
     required: false
-    default: 'true'
+    default: "true"
 outputs:
   sources:
     value: ${{ steps.export-scripts.outputs.export-sources }}
@@ -34,7 +34,7 @@ runs:
               if [[ "${folder}" =~ "${SCOPE}" || "${SCOPE}" =~ all ]]; then
                   # Load all files in folder and add newline end of each file
                   SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
-                  if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+                  if [[ "${{ inputs.export-files }}" == "true" ]]; then
                       find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER_SCRIPTS}"
                       find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER}"
                   fi
@@ -46,7 +46,7 @@ runs:
           if [[ "${SCOPE}" =~ test|all ]]; then
               local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
               SOURCES+="${sources_test}"$'\n'
-              if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+              if [[ "${{ inputs.export-files }}" == "true" ]]; then
                   echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
               fi
           fi
@@ -67,7 +67,7 @@ runs:
         function create_tempt_folders() {
           local temp_folder=""
           local temp_folder_scripts=""
-          if [[ "${{ inputs.export-files }}" == 'true' ]]; then
+          if [[ "${{ inputs.export-files }}" == "true" ]]; then
             temp_folder=$(mktemp -d)
             temp_folder_scripts="${temp_folder}/scripts"
             mkdir "${temp_folder_scripts}"
