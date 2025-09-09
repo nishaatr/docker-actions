@@ -46,7 +46,7 @@ runs:
           if [[ "${SCOPE}" =~ test|all ]]; then
               local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
               SOURCES+="${sources_test}"$'\n'
-              [[ "${{ inputs.export-files }}" == 'true' ]]; then
+              if [[ "${{ inputs.export-files }}" == 'true' ]]; then
                   echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
               fi
           fi
