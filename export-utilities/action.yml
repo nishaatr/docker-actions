@@ -31,24 +31,26 @@ runs:
       run: |
         function export_files_scoped() {
           while read -ra folder; do
-              if [[ "${folder}" =~ "${SCOPE}" || "${SCOPE}" =~ all ]]; then
-                  # Load all files in folder and add newline end of each file
-                  SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
-                  if [[ "${{ inputs.export-files }}" == "true" ]]; then
-                      find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER_SCRIPTS}"
-                      find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER}"
-                  fi
+            if [[ "${folder}" =~ "${SCOPE}" || "${SCOPE}" =~ all ]]; then
+              # Load all files in folder and add newline end of each file
+              SOURCES+=$(sed -s -e '${p;g;}' ${folder}/*.functions.sh)$'\n\n'
+              if [[ "${{ inputs.export-files }}" == "true" ]]; then
+                copy_files "${folder}" "${TEMP_FOLDER_SCRIPTS}" "-name *.functions.sh"
+                copy_files "${folder}" "${TEMP_FOLDER}" "-not -name *.functions.sh"
+                #find "${folder}" -name "*.functions.sh" -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER_SCRIPTS}"
+                #find "${folder}" -not -name '*.functions.sh' -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${TEMP_FOLDER}"
               fi
+            fi
           done <<< "$(find ${{ github.action_path }} -mindepth 1 -maxdepth 1 -type d)"
         }
 
         function export_files_tests() {
           if [[ "${SCOPE}" =~ test|all ]]; then
-              local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
-              SOURCES+="${sources_test}"$'\n'
-              if [[ "${{ inputs.export-files }}" == "true" ]]; then
-                  echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
-              fi
+            local sources_test=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+            SOURCES+="${sources_test}"$'\n'
+            if [[ "${{ inputs.export-files }}" == "true" ]]; then
+              echo "${sources_test}" > "${TEMP_FOLDER_SCRIPTS}/assert.functions.sh"
+            fi
           fi
         }
 
@@ -73,6 +75,13 @@ runs:
             mkdir "${temp_folder_scripts}"
           fi
           echo "${temp_folder}" "${temp_folder_scripts}"
+        }
+
+        function copy_files() {
+          local src="$1"
+          local dst="$2"
+          local filter="$3"
+          find "${src}" "${filter}" -type f -print0 | xargs --null --no-run-if-empty cp --target-directory "${dst}"
         }
 
         SOURCES=()
