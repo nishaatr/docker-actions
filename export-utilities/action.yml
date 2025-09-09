@@ -76,11 +76,7 @@ runs:
         }
 
         function copy_files() {
-          local src="$1"
-          local dst="$2"
-          local not_filter="$3"
-          eval "find ${src} ${not_filter} -name *.functions.sh -type f -print0 | \
-                  xargs --null --no-run-if-empty cp --target-directory ${dst}"
+          eval "find $1 $3 -name *.functions.sh -type f -print0 | xargs --null --no-run-if-empty cp --target-directory $2"
         }
 
         SOURCES=()
