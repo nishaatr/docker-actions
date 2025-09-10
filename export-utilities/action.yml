@@ -65,12 +65,11 @@ runs:
         }
 
         function create_tempt_folders() {
-          local temp_folder=""
-          local temp_folder_scripts=""
           if [[ "${{ inputs.export-files }}" == "true" ]]; then
-            export TEMP_FOLDER=$(mktemp -d)
-            export TEMP_FOLDER_SCRIPTS="${temp_folder}/scripts"
-            mkdir "${TEMP_FOLDER_SCRIPTS}"
+            local temp_folder=$(mktemp -d)
+            local temp_folder_scripts="${temp_folder}/scripts"
+            mkdir "${temp_folder_scripts}"
+            export TEMP_FOLDER="${temp_folder}" TEMP_FOLDER_SCRIPTS="${temp_folder_scripts}"
           fi
         }
 
