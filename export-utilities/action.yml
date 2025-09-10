@@ -70,9 +70,8 @@ runs:
           if [[ "${{ inputs.export-files }}" == "true" ]]; then
             export TEMP_FOLDER=$(mktemp -d)
             export TEMP_FOLDER_SCRIPTS="${temp_folder}/scripts"
-            mkdir "${temp_folder_scripts}"
+            mkdir "${TEMP_FOLDER_SCRIPTS}"
           fi
-          #echo "${temp_folder}" "${temp_folder_scripts}"
         }
 
         function copy_files() {
@@ -82,7 +81,6 @@ runs:
         SOURCES=()
         SCOPE="${{ inputs.scope }}"
         create_tempt_folders
-        #read TEMP_FOLDER TEMP_FOLDER_SCRIPTS < <(create_tempt_folders)
         export_files_scoped
         export_files_tests
         set_outputs
